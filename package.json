@@ -17,5 +17,9 @@
     "url": "https://github.com/woorld/osc-tester/issues"
   },
   "homepage": "https://github.com/woorld/osc-tester#readme",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "commander": "^14.0.3",
+    "node-osc": "^11.3.0"
+  }
 }
