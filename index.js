@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Command } from 'commander';
 import { Client, Server } from 'node-osc';
 import * as readline from 'readline';
