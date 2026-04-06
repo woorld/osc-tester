@@ -1,0 +1,28 @@
+{
+  "name": "osc-tester",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "osc-tester": "index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/woorld/osc-tester.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/woorld/osc-tester/issues"
+  },
+  "homepage": "https://github.com/woorld/osc-tester#readme",
+  "type": "module",
+  "dependencies": {
+    "commander": "^14.0.3",
+    "node-osc": "^11.3.0"
+  }
+}
