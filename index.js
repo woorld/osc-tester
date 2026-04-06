@@ -9,7 +9,7 @@ const program = new Command();
 program
   .name('osc-tester')
   .description('OSC sender and receiver CLI tool')
-  .version('1.0.0')
+  .version('1.0.1')
   .option('-a, --address <address>', 'IP address', 'localhost')
   .option('-p, --port <port>', 'port number', '9000');
 
