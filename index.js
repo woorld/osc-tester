@@ -15,6 +15,7 @@ program
 
 program
   .command('send <oscAddress> <value...>')
+  .option('--auto-number', 'Append sequential number to address on each send')
   .description('Send OSC message and repeat on Enter, change message by typing new one')
   .action((oscAddress, valueParts, options, command) => {
     const globalOptions = command.parent.opts();
@@ -24,9 +25,13 @@ program
     const client = new Client(address, port);
 
     let currentMessage = buildMessage(oscAddress, valueParts);
+    let sequenceCounter = 0;
 
     console.log(`Sending to ${address}:${port}`);
     console.log(`Initial message: ${JSON.stringify(currentMessage)}`);
+    if (options.autoNumber) {
+      console.log('Auto-numbering enabled: addresses will increment with each send');
+    }
 
     const rl = readline.createInterface({
       input: process.stdin,
@@ -35,8 +40,16 @@ program
     });
 
     const sendMessage = () => {
-      client.send(currentMessage.address, ...currentMessage.args);
-      console.log(`Sent: ${currentMessage.address} ${currentMessage.args.join(' ')}`);
+      let finalAddress = currentMessage.address;
+      if (options.autoNumber) {
+        if (!finalAddress.endsWith('/')) {
+          finalAddress += '/';
+        }
+        finalAddress += sequenceCounter;
+        sequenceCounter++;
+      }
+      client.send(finalAddress, ...currentMessage.args);
+      console.log(`Sent: ${finalAddress} ${currentMessage.args.join(' ')}`);
     };
 
     sendMessage();
