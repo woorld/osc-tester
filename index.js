@@ -9,12 +9,13 @@ const program = new Command();
 program
   .name('osc-tester')
   .description('OSC sender and receiver CLI tool')
-  .version('1.0.1')
+  .version('1.1.0')
   .option('-a, --address <address>', 'IP address', 'localhost')
   .option('-p, --port <port>', 'port number', '9000');
 
 program
   .command('send <oscAddress> <value...>')
+  .option('--auto-number', 'Append sequential number to address on each send')
   .description('Send OSC message and repeat on Enter, change message by typing new one')
   .action((oscAddress, valueParts, options, command) => {
     const globalOptions = command.parent.opts();
@@ -23,10 +24,17 @@ program
 
     const client = new Client(address, port);
 
-    let currentMessage = buildMessage(oscAddress, valueParts);
+    let currentAddress = oscAddress;
+    let currentValues = valueParts;
+    let valueIndex = 0;
+    let sequenceCounter = 0;
 
     console.log(`Sending to ${address}:${port}`);
-    console.log(`Initial message: ${JSON.stringify(currentMessage)}`);
+    console.log(`Initial address: ${currentAddress}`);
+    console.log(`Initial values: ${currentValues.join(', ')}`);
+    if (options.autoNumber) {
+      console.log('Auto-numbering enabled: addresses will increment with each send');
+    }
 
     const rl = readline.createInterface({
       input: process.stdin,
@@ -35,8 +43,19 @@ program
     });
 
     const sendMessage = () => {
-      client.send(currentMessage.address, ...currentMessage.args);
-      console.log(`Sent: ${currentMessage.address} ${currentMessage.args.join(' ')}`);
+      let finalAddress = currentAddress;
+      if (options.autoNumber) {
+        if (!finalAddress.endsWith('/')) {
+          finalAddress += '/';
+        }
+        finalAddress += sequenceCounter;
+        sequenceCounter++;
+      }
+
+      const currentValue = parseValue(currentValues[valueIndex % currentValues.length]);
+      client.send(finalAddress, currentValue);
+      console.log(`Sent: ${finalAddress} ${currentValue}`);
+      valueIndex++;
     };
 
     sendMessage();
@@ -46,11 +65,14 @@ program
         sendMessage();
       } else {
         try {
-          currentMessage = parseMessageInput(input.trim());
-          console.log(`New message set: ${JSON.stringify(currentMessage)}`);
+          const parsed = parseMessageInput(input.trim());
+          currentAddress = parsed.address;
+          currentValues = parsed.values;
+          valueIndex = 0;
+          console.log(`New message set: address=${currentAddress}, values=${currentValues.join(', ')}`);
           sendMessage();
         } catch (error) {
-          console.error('Invalid message format. Use: /address value or /address,value');
+          console.error('Invalid message format. Use: /address value1 value2 ... or /address,value1,value2,...');
         }
       }
     });
@@ -96,19 +118,18 @@ function parseMessageInput(input) {
   }
 
   const address = parts[0].trim();
-  const args = parts.slice(1).map(parseValue);
-  return { address, args };
+  const values = parts.slice(1);
+  return { address, values };
 }
 
 function parseMessageComma(input) {
   const parts = input.split(',');
   if (parts.length < 1) throw new Error('Invalid format');
   const address = parts[0].trim();
-  const args = parts.slice(1)
+  const values = parts.slice(1)
     .map(arg => arg.trim())
-    .filter(arg => arg.length > 0)
-    .map(parseValue);
-  return { address, args };
+    .filter(arg => arg.length > 0);
+  return { address, values };
 }
 
 function parseValue(value) {
