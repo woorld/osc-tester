@@ -12,7 +12,7 @@ const program = new Command();
 program
   .name('osc-tester')
   .description('OSC sender and receiver CLI tool')
-  .version('1.1.0')
+  .version('1.2.0')
   .option('-a, --address <address>', 'IP address', process.env.OSC_TESTER_IP || 'localhost')
   .option('-p, --port <port>', 'port number', process.env.OSC_TESTER_PORT || '9000');
 
