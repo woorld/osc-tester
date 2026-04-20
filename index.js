@@ -3,6 +3,9 @@
 import { Command } from 'commander';
 import { Client, Server } from 'node-osc';
 import * as readline from 'readline';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const program = new Command();
 
@@ -10,8 +13,8 @@ program
   .name('osc-tester')
   .description('OSC sender and receiver CLI tool')
   .version('1.1.0')
-  .option('-a, --address <address>', 'IP address', 'localhost')
-  .option('-p, --port <port>', 'port number', '9000');
+  .option('-a, --address <address>', 'IP address', process.env.OSC_TESTER_IP || 'localhost')
+  .option('-p, --port <port>', 'port number', process.env.OSC_TESTER_PORT || '9000');
 
 program
   .command('send <oscAddress> <value...>')
